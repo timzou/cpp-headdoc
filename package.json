@@ -1,0 +1,229 @@
+{
+  "name": "cpp-header-doclens",
+  "displayName": "C++ Header DocLens",
+  "description": "Display Doxygen documentation from C/C++ headers above source definitions.",
+  "version": "0.1.0",
+  "publisher": "timzou93",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timzou/cpp-header-doclens.git"
+  },
+  "bugs": {
+    "url": "https://github.com/timzou/cpp-header-doclens/issues"
+  },
+  "homepage": "https://github.com/timzou/cpp-header-doclens#readme",
+  "engines": {
+    "vscode": "^1.134.0",
+    "node": ">=24"
+  },
+  "extensionKind": [
+    "workspace"
+  ],
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "cpp",
+    "c++",
+    "doxygen",
+    "documentation",
+    "codelens",
+    "clangd",
+    "header",
+    "hpp"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:cpp",
+    "onLanguage:c",
+    "onCommand:cppHeaderDocLens.refresh",
+    "onCommand:cppHeaderDocLens.toggle",
+    "onCommand:cppHeaderDocLens.showDocumentation",
+    "onCommand:cppHeaderDocLens.goToDeclaration",
+    "onCommand:cppHeaderDocLens.checkSetup"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "cppHeaderDocLens.refresh",
+        "title": "C++ Header DocLens: Refresh"
+      },
+      {
+        "command": "cppHeaderDocLens.toggle",
+        "title": "C++ Header DocLens: Enable/Disable"
+      },
+      {
+        "command": "cppHeaderDocLens.showDocumentation",
+        "title": "C++ Header DocLens: Show Documentation"
+      },
+      {
+        "command": "cppHeaderDocLens.goToDeclaration",
+        "title": "C++ Header DocLens: Go to Header Declaration"
+      },
+      {
+        "command": "cppHeaderDocLens.checkSetup",
+        "title": "C++ Header DocLens: Check Setup"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "cppHeaderDocLens.goToDeclaration",
+          "when": "resourceScheme == cpp-header-doc",
+          "group": "navigation@1"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "C++ Header DocLens",
+      "properties": {
+        "cppHeaderDocLens.enabled": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Enable C++ Header DocLens in this workspace."
+        },
+        "cppHeaderDocLens.showCodeLens": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Show header documentation summaries above function definitions."
+        },
+        "cppHeaderDocLens.showHover": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Show full header documentation when hovering a function name."
+        },
+        "cppHeaderDocLens.summaryStyle": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "brief",
+            "briefAndParams",
+            "briefAndTags"
+          ],
+          "default": "briefAndTags",
+          "description": "Select which documentation fields appear in CodeLens summaries."
+        },
+        "cppHeaderDocLens.maxSummaryLength": {
+          "type": "number",
+          "scope": "resource",
+          "minimum": 40,
+          "maximum": 500,
+          "default": 180,
+          "description": "Maximum CodeLens summary length in Unicode characters."
+        },
+        "cppHeaderDocLens.showParametersInCodeLens": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Include parameter summaries in CodeLens when the selected style supports them."
+        },
+        "cppHeaderDocLens.showReturnValueInCodeLens": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Include the return value in CodeLens when the selected style supports it."
+        },
+        "cppHeaderDocLens.headerExtensions": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".h",
+            ".hpp",
+            ".hh",
+            ".hxx"
+          ],
+          "description": "Extensions treated as C/C++ header files."
+        },
+        "cppHeaderDocLens.sourceExtensions": {
+          "type": "array",
+          "scope": "resource",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".c",
+            ".cc",
+            ".cpp",
+            ".cxx"
+          ],
+          "description": "Extensions treated as C/C++ source files."
+        },
+        "cppHeaderDocLens.maxCommentSearchLines": {
+          "type": "number",
+          "scope": "resource",
+          "minimum": 5,
+          "maximum": 500,
+          "default": 40,
+          "description": "Maximum number of lines searched above a header declaration."
+        },
+        "cppHeaderDocLens.debounceMs": {
+          "type": "number",
+          "scope": "resource",
+          "minimum": 50,
+          "maximum": 5000,
+          "default": 300,
+          "description": "Delay before refreshing CodeLens after editor or file changes."
+        },
+        "cppHeaderDocLens.maxCacheEntries": {
+          "type": "number",
+          "scope": "resource",
+          "minimum": 20,
+          "maximum": 5000,
+          "default": 500,
+          "description": "Maximum number of in-memory documentation cache entries."
+        },
+        "cppHeaderDocLens.logLevel": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "off",
+            "error",
+            "info",
+            "debug"
+          ],
+          "default": "error",
+          "description": "Verbosity of the C++ Header DocLens output channel."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "clean": "node -e \"for(const p of ['dist','dist-test','coverage','release'])require('node:fs').rmSync(p,{recursive:true,force:true})\"",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "compile": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --sourcemap --outfile=dist/extension.js",
+    "watch": "esbuild src/extension.ts --bundle --platform=node --format=cjs --external:vscode --sourcemap --outfile=dist/extension.js --watch",
+    "compile:test": "esbuild test/integration/index.ts --bundle --platform=node --format=cjs --external:vscode --external:mocha --outfile=dist-test/integration.js",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "mocha --import=tsx \"test/unit/**/*.test.ts\"",
+    "test:integration": "npm run compile && npm run compile:test && node test/runIntegration.mjs",
+    "verify": "npm run check && npm run lint && npm run compile && npm run test:unit && npm run test:integration",
+    "package": "npm run compile && node -e \"require('node:fs').mkdirSync('release',{recursive:true})\" && vsce package --out release/cpp-header-doclens-0.1.0.vsix"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/mocha": "10.0.10",
+    "@types/node": "24.10.0",
+    "@types/vscode": "1.134.0",
+    "@vscode/test-electron": "3.1.0",
+    "@vscode/vsce": "3.9.2",
+    "esbuild": "0.28.2",
+    "eslint": "10.9.1",
+    "mocha": "11.8.0",
+    "tsx": "4.23.12",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.68.0"
+  },
+  "overrides": {
+    "diff": "8.0.3",
+    "serialize-javascript": "7.0.5"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "name": "DocLens Example",
+      "includePath": [
+        "${workspaceFolder}/include"
+      ],
+      "cppStandard": "c++17",
+      "intelliSenseMode": "${default}"
+    }
+  ],
+  "version": 4
+}

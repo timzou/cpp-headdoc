@@ -1,0 +1,1 @@
+int fixtureWithoutSymbols = 0;
