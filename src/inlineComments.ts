@@ -173,7 +173,7 @@ function createComment(resolved: ResolvedDocumentation): vscode.Comment {
   return {
     body,
     mode: vscode.CommentMode.Preview,
-    author: { name: 'C++ HeadDoc' },
+    author: { name: '' },
     contextValue: 'cppHeadDoc.readonlyDocumentation',
   };
 }
