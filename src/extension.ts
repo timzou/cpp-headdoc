@@ -5,6 +5,7 @@ import { HeaderDocCodeLensProvider, HeaderDocHoverProvider } from './providers.t
 import { RefreshService } from './refresh.ts';
 import { normalizeDeclarations } from './symbols.ts';
 import { DocumentationContentProvider } from './virtualDocument.ts';
+import { InlineDocumentationController } from './inlineComments.ts';
 
 const selector: vscode.DocumentSelector = [
   { scheme: '*', language: 'cpp' },
@@ -12,7 +13,7 @@ const selector: vscode.DocumentSelector = [
 ];
 
 class Logger implements vscode.Disposable {
-  readonly #channel = vscode.window.createOutputChannel('C++ Header DocLens');
+  readonly #channel = vscode.window.createOutputChannel('C++ HeadDoc');
 
   write(level: 'error' | 'info' | 'debug', message: string, error?: unknown): void {
     const configured = getConfig(vscode.window.activeTextEditor?.document.uri).logLevel;
@@ -34,47 +35,75 @@ function enabled(configured: LogLevel, level: 'error' | 'info' | 'debug'): boole
 export function activate(context: vscode.ExtensionContext): void {
   const logger = new Logger();
   const service = new DocumentationService((level, message, error) => logger.write(level, message, error));
-  const codeLens = new HeaderDocCodeLensProvider(service);
+  const inlineComments = new InlineDocumentationController(service);
+  const codeLens = new HeaderDocCodeLensProvider(service, (target) => inlineComments.isExpanded(target));
   const hover = new HeaderDocHoverProvider(service);
   const virtualDocuments = new DocumentationContentProvider(service);
-  const refresh = new RefreshService(service, codeLens, virtualDocuments);
+  const refresh = new RefreshService(service, codeLens, virtualDocuments, inlineComments);
 
   context.subscriptions.push(
     logger,
     codeLens,
+    inlineComments,
+    inlineComments.onDidChange(() => codeLens.refresh()),
     virtualDocuments,
     refresh,
     vscode.languages.registerCodeLensProvider(selector, codeLens),
     vscode.languages.registerHoverProvider(selector, hover),
-    vscode.workspace.registerTextDocumentContentProvider('cpp-header-doc', virtualDocuments),
-    vscode.commands.registerCommand('cppHeaderDocLens.noop', () => undefined),
-    vscode.commands.registerCommand('cppHeaderDocLens.refresh', () => {
+    vscode.workspace.registerTextDocumentContentProvider('cpp-head-doc', virtualDocuments),
+    vscode.commands.registerCommand('cppHeadDoc.noop', () => undefined),
+    vscode.commands.registerCommand('cppHeadDoc.refresh', () => {
       refresh.refreshNow();
-      void vscode.window.showInformationMessage('C++ Header DocLens refreshed.');
+      void vscode.window.showInformationMessage('C++ HeadDoc refreshed.');
     }),
-    vscode.commands.registerCommand('cppHeaderDocLens.toggle', async () => {
+    vscode.commands.registerCommand('cppHeadDoc.toggle', async () => {
       try {
         const current = getConfig(vscode.window.activeTextEditor?.document.uri).enabled;
-        await vscode.workspace.getConfiguration('cppHeaderDocLens').update('enabled', !current, vscode.ConfigurationTarget.Workspace);
+        await vscode.workspace.getConfiguration('cppHeadDoc').update('enabled', !current, vscode.ConfigurationTarget.Workspace);
         refresh.refreshNow();
-        void vscode.window.showInformationMessage(`C++ Header DocLens ${current ? 'disabled' : 'enabled'} for this workspace.`);
+        void vscode.window.showInformationMessage(`C++ HeadDoc ${current ? 'disabled' : 'enabled'} for this workspace.`);
       } catch (error) {
         logger.write('error', 'Unable to update the workspace setting.', error);
-        void vscode.window.showErrorMessage('C++ Header DocLens could not update the workspace setting.');
+        void vscode.window.showErrorMessage('C++ HeadDoc could not update the workspace setting.');
       }
     }),
-    vscode.commands.registerCommand('cppHeaderDocLens.showDocumentation', async (argument?: unknown) => {
+    vscode.commands.registerCommand('cppHeadDoc.showDocumentation', async (argument?: unknown) => {
       try {
-        const resolved = isResolvedDocumentation(argument) ? argument : await resolveAtCursor(service);
+        const resolved = resolveArgument(argument, inlineComments) ?? await resolveAtCursor(service);
+        if (resolved) inlineComments.show(resolved);
+        else void vscode.window.showInformationMessage('No header documentation was found at the current function.');
+      } catch (error) {
+        logger.write('error', 'Unable to show inline documentation.', error);
+        void vscode.window.showErrorMessage('C++ HeadDoc could not show the inline documentation.');
+      }
+    }),
+    vscode.commands.registerCommand('cppHeadDoc.toggleInlineDocumentation', async (argument?: unknown) => {
+      try {
+        const resolved = resolveArgument(argument, inlineComments) ?? await resolveAtCursor(service);
+        if (resolved) inlineComments.toggle(resolved);
+        else void vscode.window.showInformationMessage('No header documentation was found at the current function.');
+      } catch (error) {
+        logger.write('error', 'Unable to toggle inline documentation.', error);
+        void vscode.window.showErrorMessage('C++ HeadDoc could not toggle the inline documentation.');
+      }
+    }),
+    vscode.commands.registerCommand('cppHeadDoc.openMarkdownPreview', async (argument?: unknown) => {
+      try {
+        const resolved = resolveArgument(argument, inlineComments) ?? await resolveAtCursor(service);
         if (resolved) await virtualDocuments.show(resolved);
         else void vscode.window.showInformationMessage('No header documentation was found at the current function.');
       } catch (error) {
-        logger.write('error', 'Unable to open documentation.', error);
-        void vscode.window.showErrorMessage('C++ Header DocLens could not open the documentation view.');
+        logger.write('error', 'Unable to open the Markdown preview.', error);
+        void vscode.window.showErrorMessage('C++ HeadDoc could not open the Markdown preview.');
       }
     }),
-    vscode.commands.registerCommand('cppHeaderDocLens.goToDeclaration', async (argument?: unknown) => {
+    vscode.commands.registerCommand('cppHeadDoc.goToDeclaration', async (argument?: unknown) => {
       try {
+        const inlineResolved = inlineComments.resolvedFor(argument);
+        if (inlineResolved) {
+          await virtualDocuments.goToDeclaration(inlineResolved);
+          return;
+        }
         if (argument instanceof vscode.Uri || isResolvedDocumentation(argument)) {
           await virtualDocuments.goToDeclaration(argument);
           return;
@@ -84,13 +113,20 @@ export function activate(context: vscode.ExtensionContext): void {
         else await virtualDocuments.goToDeclaration();
       } catch (error) {
         logger.write('error', 'Unable to open the header declaration.', error);
-        void vscode.window.showErrorMessage('C++ Header DocLens could not open the header declaration.');
+        void vscode.window.showErrorMessage('C++ HeadDoc could not open the header declaration.');
       }
     }),
-    vscode.commands.registerCommand('cppHeaderDocLens.checkSetup', async () => {
+    vscode.commands.registerCommand('cppHeadDoc.checkSetup', async () => {
       await checkSetup(service, logger);
     }),
   );
+}
+
+function resolveArgument(
+  value: unknown,
+  inlineComments: InlineDocumentationController,
+): ResolvedDocumentation | undefined {
+  return isResolvedDocumentation(value) ? value : inlineComments.resolvedFor(value);
 }
 
 async function resolveAtCursor(service: DocumentationService): Promise<ResolvedDocumentation | undefined> {
@@ -137,8 +173,8 @@ async function checkSetup(service: DocumentationService, logger: Logger): Promis
     logger.show();
     const ready = config.enabled && codeLensEnabled && isSourceUri(document.uri, config) && symbols.length > 0;
     void vscode.window.showInformationMessage(ready
-      ? 'C++ Header DocLens setup is ready.'
-      : 'C++ Header DocLens setup needs attention. See the output channel.');
+      ? 'C++ HeadDoc setup is ready.'
+      : 'C++ HeadDoc setup needs attention. See the output channel.');
   } catch (error) {
     logger.write('error', 'Setup check failed', error);
     logger.show();

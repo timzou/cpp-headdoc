@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
-import type { SummaryStyle } from './model.ts';
+import type { InlineCommentTextSize, SummaryStyle } from './model.ts';
 import { clampNumber, normalizeExtensions } from './utilities.ts';
 
 const defaultHeaders = ['.h', '.hpp', '.hh', '.hxx'];
 const defaultSources = ['.c', '.cc', '.cpp', '.cxx'];
 const summaryStyles: readonly SummaryStyle[] = ['brief', 'briefAndParams', 'briefAndTags'];
+const inlineCommentTextSizes: readonly InlineCommentTextSize[] = ['small', 'medium', 'large'];
 export type LogLevel = 'off' | 'error' | 'info' | 'debug';
 const logLevels: readonly LogLevel[] = ['off', 'error', 'info', 'debug'];
 
@@ -12,6 +13,9 @@ export interface ExtensionConfig {
   enabled: boolean;
   showCodeLens: boolean;
   showHover: boolean;
+  showInlineComments: boolean;
+  inlineCommentsExpanded: boolean;
+  inlineCommentTextSize: InlineCommentTextSize;
   summaryStyle: SummaryStyle;
   maxSummaryLength: number;
   showParametersInCodeLens: boolean;
@@ -29,11 +33,14 @@ function enumValue<T extends string>(value: unknown, values: readonly T[], fallb
 }
 
 export function getConfig(resource?: vscode.Uri): ExtensionConfig {
-  const config = vscode.workspace.getConfiguration('cppHeaderDocLens', resource);
+  const config = vscode.workspace.getConfiguration('cppHeadDoc', resource);
   return {
     enabled: config.get('enabled', true),
     showCodeLens: config.get('showCodeLens', true),
     showHover: config.get('showHover', true),
+    showInlineComments: config.get('showInlineComments', true),
+    inlineCommentsExpanded: config.get('inlineCommentsExpanded', false),
+    inlineCommentTextSize: enumValue(config.get('inlineCommentTextSize'), inlineCommentTextSizes, 'medium'),
     summaryStyle: enumValue(config.get('summaryStyle'), summaryStyles, 'briefAndTags'),
     maxSummaryLength: clampNumber(config.get('maxSummaryLength'), 180, 40, 500),
     showParametersInCodeLens: config.get('showParametersInCodeLens', true),

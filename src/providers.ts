@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { getConfig, isSourceUri } from './config.ts';
-import type { DocumentationService, ResolvedDocumentation } from './documentationService.ts';
+import type { DocumentationService, DocumentationTarget, ResolvedDocumentation } from './documentationService.ts';
 import { formatCompactSummary, formatMarkdown } from './formatting.ts';
 import type { ImplementationSymbol } from './symbols.ts';
 
@@ -19,7 +19,10 @@ export class HeaderDocCodeLensProvider implements vscode.CodeLensProvider<Header
   readonly #changed = new vscode.EventEmitter<void>();
   readonly onDidChangeCodeLenses = this.#changed.event;
 
-  constructor(private readonly service: DocumentationService) {}
+  constructor(
+    private readonly service: DocumentationService,
+    private readonly isExpanded: (target: DocumentationTarget) => boolean,
+  ) {}
 
   async provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken): Promise<HeaderDocCodeLens[]> {
     const config = getConfig(document.uri);
@@ -48,9 +51,9 @@ export class HeaderDocCodeLensProvider implements vscode.CodeLensProvider<Header
       });
       if (summary) {
         codeLens.command = {
-          command: 'cppHeaderDocLens.showDocumentation',
-          title: `$(chevron-right) $(book) ${summary}`,
-          tooltip: 'Open full header documentation',
+          command: 'cppHeadDoc.toggleInlineDocumentation',
+          title: `$(${this.isExpanded(resolved.target) ? 'chevron-down' : 'chevron-right'}) $(book) ${summary}`,
+          tooltip: 'Expand or collapse header documentation',
           arguments: [resolved],
         };
       }
@@ -66,7 +69,7 @@ export class HeaderDocCodeLensProvider implements vscode.CodeLensProvider<Header
 
 function hideCodeLens(codeLens: HeaderDocCodeLens): HeaderDocCodeLens {
   codeLens.command = {
-    command: 'cppHeaderDocLens.noop',
+    command: 'cppHeadDoc.noop',
     title: '',
   };
   return codeLens;

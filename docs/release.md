@@ -26,10 +26,10 @@ xvfb-run -a npm run test:integration
 npm run package
 ```
 
-脚本会编译扩展、创建 `release` 目录，并生成 `release/cpp-header-doclens-0.1.0.vsix`。安装验证：
+脚本会编译扩展、创建 `release` 目录，并生成 `release/cpp-headdoc-0.2.0.vsix`。安装验证：
 
 ```bash
-code --install-extension release/cpp-header-doclens-0.1.0.vsix
+code --install-extension release/cpp-headdoc-0.2.0.vsix
 ```
 
 ## GitHub Actions

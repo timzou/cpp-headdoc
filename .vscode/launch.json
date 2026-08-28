@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run C++ Header DocLens",
+      "name": "Run C++ HeadDoc",
       "type": "extensionHost",
       "request": "launch",
       "args": [

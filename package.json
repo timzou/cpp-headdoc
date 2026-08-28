@@ -1,18 +1,18 @@
 {
-  "name": "cpp-header-doclens",
-  "displayName": "C++ Header DocLens",
-  "description": "Display Doxygen documentation from C/C++ headers above source definitions.",
-  "version": "0.1.0",
+  "name": "cpp-headdoc",
+  "displayName": "C++ HeadDoc",
+  "description": "Display header Doxygen documentation as compact, collapsible inline comments above C/C++ definitions.",
+  "version": "0.2.0",
   "publisher": "timzou93",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/timzou/cpp-header-doclens.git"
+    "url": "https://github.com/timzou/cpp-headdoc.git"
   },
   "bugs": {
-    "url": "https://github.com/timzou/cpp-header-doclens/issues"
+    "url": "https://github.com/timzou/cpp-headdoc/issues"
   },
-  "homepage": "https://github.com/timzou/cpp-header-doclens#readme",
+  "homepage": "https://github.com/timzou/cpp-headdoc#readme",
   "engines": {
     "vscode": "^1.134.0",
     "node": ">=24"
@@ -38,66 +38,111 @@
   "activationEvents": [
     "onLanguage:cpp",
     "onLanguage:c",
-    "onCommand:cppHeaderDocLens.refresh",
-    "onCommand:cppHeaderDocLens.toggle",
-    "onCommand:cppHeaderDocLens.showDocumentation",
-    "onCommand:cppHeaderDocLens.goToDeclaration",
-    "onCommand:cppHeaderDocLens.checkSetup"
+    "onCommand:cppHeadDoc.refresh",
+    "onCommand:cppHeadDoc.toggle",
+    "onCommand:cppHeadDoc.showDocumentation",
+    "onCommand:cppHeadDoc.toggleInlineDocumentation",
+    "onCommand:cppHeadDoc.openMarkdownPreview",
+    "onCommand:cppHeadDoc.goToDeclaration",
+    "onCommand:cppHeadDoc.checkSetup"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "cppHeaderDocLens.refresh",
-        "title": "C++ Header DocLens: Refresh"
+        "command": "cppHeadDoc.refresh",
+        "title": "C++ HeadDoc: Refresh"
       },
       {
-        "command": "cppHeaderDocLens.toggle",
-        "title": "C++ Header DocLens: Enable/Disable"
+        "command": "cppHeadDoc.toggle",
+        "title": "C++ HeadDoc: Enable/Disable"
       },
       {
-        "command": "cppHeaderDocLens.showDocumentation",
-        "title": "C++ Header DocLens: Show Documentation"
+        "command": "cppHeadDoc.showDocumentation",
+        "title": "C++ HeadDoc: Expand Documentation"
       },
       {
-        "command": "cppHeaderDocLens.goToDeclaration",
-        "title": "C++ Header DocLens: Go to Header Declaration"
+        "command": "cppHeadDoc.toggleInlineDocumentation",
+        "title": "C++ HeadDoc: Expand/Collapse Documentation"
       },
       {
-        "command": "cppHeaderDocLens.checkSetup",
-        "title": "C++ Header DocLens: Check Setup"
+        "command": "cppHeadDoc.openMarkdownPreview",
+        "title": "C++ HeadDoc: Open Markdown Preview"
+      },
+      {
+        "command": "cppHeadDoc.goToDeclaration",
+        "title": "C++ HeadDoc: Go to Header Declaration"
+      },
+      {
+        "command": "cppHeadDoc.checkSetup",
+        "title": "C++ HeadDoc: Check Setup"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "cppHeaderDocLens.goToDeclaration",
-          "when": "resourceScheme == cpp-header-doc",
+          "command": "cppHeadDoc.goToDeclaration",
+          "when": "resourceScheme == cpp-head-doc",
           "group": "navigation@1"
+        }
+      ],
+      "comments/commentThread/title": [
+        {
+          "command": "cppHeadDoc.goToDeclaration",
+          "when": "commentThread == cppHeadDoc.readonlyDocumentation",
+          "group": "inline@1"
+        },
+        {
+          "command": "cppHeadDoc.openMarkdownPreview",
+          "when": "commentThread == cppHeadDoc.readonlyDocumentation",
+          "group": "inline@2"
         }
       ]
     },
     "configuration": {
-      "title": "C++ Header DocLens",
+      "title": "C++ HeadDoc",
       "properties": {
-        "cppHeaderDocLens.enabled": {
+        "cppHeadDoc.enabled": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
-          "description": "Enable C++ Header DocLens in this workspace."
+          "description": "Enable C++ HeadDoc in this workspace."
         },
-        "cppHeaderDocLens.showCodeLens": {
+        "cppHeadDoc.showCodeLens": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
           "description": "Show header documentation summaries above function definitions."
         },
-        "cppHeaderDocLens.showHover": {
+        "cppHeadDoc.showHover": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
           "description": "Show full header documentation when hovering a function name."
         },
-        "cppHeaderDocLens.summaryStyle": {
+        "cppHeadDoc.showInlineComments": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Show readonly header documentation as wrapped inline comment threads."
+        },
+        "cppHeadDoc.inlineCommentsExpanded": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": false,
+          "description": "Expand inline documentation when it first appears; keep disabled for a compact initial view."
+        },
+        "cppHeadDoc.inlineCommentTextSize": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "small",
+            "medium",
+            "large"
+          ],
+          "default": "medium",
+          "description": "Relative text size for inline documentation, rendered with native Markdown typography."
+        },
+        "cppHeadDoc.summaryStyle": {
           "type": "string",
           "scope": "resource",
           "enum": [
@@ -108,7 +153,7 @@
           "default": "briefAndTags",
           "description": "Select which documentation fields appear in CodeLens summaries."
         },
-        "cppHeaderDocLens.maxSummaryLength": {
+        "cppHeadDoc.maxSummaryLength": {
           "type": "number",
           "scope": "resource",
           "minimum": 40,
@@ -116,19 +161,19 @@
           "default": 180,
           "description": "Maximum CodeLens summary length in Unicode characters."
         },
-        "cppHeaderDocLens.showParametersInCodeLens": {
+        "cppHeadDoc.showParametersInCodeLens": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
           "description": "Include parameter summaries in CodeLens when the selected style supports them."
         },
-        "cppHeaderDocLens.showReturnValueInCodeLens": {
+        "cppHeadDoc.showReturnValueInCodeLens": {
           "type": "boolean",
           "scope": "resource",
           "default": true,
           "description": "Include the return value in CodeLens when the selected style supports it."
         },
-        "cppHeaderDocLens.headerExtensions": {
+        "cppHeadDoc.headerExtensions": {
           "type": "array",
           "scope": "resource",
           "items": {
@@ -142,7 +187,7 @@
           ],
           "description": "Extensions treated as C/C++ header files."
         },
-        "cppHeaderDocLens.sourceExtensions": {
+        "cppHeadDoc.sourceExtensions": {
           "type": "array",
           "scope": "resource",
           "items": {
@@ -156,7 +201,7 @@
           ],
           "description": "Extensions treated as C/C++ source files."
         },
-        "cppHeaderDocLens.maxCommentSearchLines": {
+        "cppHeadDoc.maxCommentSearchLines": {
           "type": "number",
           "scope": "resource",
           "minimum": 5,
@@ -164,7 +209,7 @@
           "default": 40,
           "description": "Maximum number of lines searched above a header declaration."
         },
-        "cppHeaderDocLens.debounceMs": {
+        "cppHeadDoc.debounceMs": {
           "type": "number",
           "scope": "resource",
           "minimum": 50,
@@ -172,7 +217,7 @@
           "default": 300,
           "description": "Delay before refreshing CodeLens after editor or file changes."
         },
-        "cppHeaderDocLens.maxCacheEntries": {
+        "cppHeadDoc.maxCacheEntries": {
           "type": "number",
           "scope": "resource",
           "minimum": 20,
@@ -180,7 +225,7 @@
           "default": 500,
           "description": "Maximum number of in-memory documentation cache entries."
         },
-        "cppHeaderDocLens.logLevel": {
+        "cppHeadDoc.logLevel": {
           "type": "string",
           "scope": "resource",
           "enum": [
@@ -190,7 +235,7 @@
             "debug"
           ],
           "default": "error",
-          "description": "Verbosity of the C++ Header DocLens output channel."
+          "description": "Verbosity of the C++ HeadDoc output channel."
         }
       }
     }
@@ -206,7 +251,7 @@
     "test:unit": "mocha --import=tsx \"test/unit/**/*.test.ts\"",
     "test:integration": "npm run compile && npm run compile:test && node test/runIntegration.mjs",
     "verify": "npm run check && npm run lint && npm run compile && npm run test:unit && npm run test:integration",
-    "package": "npm run compile && node -e \"require('node:fs').mkdirSync('release',{recursive:true})\" && vsce package --out release/cpp-header-doclens-0.1.0.vsix"
+    "package": "npm run compile && node -e \"require('node:fs').mkdirSync('release',{recursive:true})\" && vsce package --out release/cpp-headdoc-0.2.0.vsix"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

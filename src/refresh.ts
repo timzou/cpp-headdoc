@@ -3,6 +3,7 @@ import { getConfig, isTrackedUri } from './config.ts';
 import type { DocumentationService } from './documentationService.ts';
 import type { HeaderDocCodeLensProvider } from './providers.ts';
 import type { DocumentationContentProvider } from './virtualDocument.ts';
+import type { InlineDocumentationController } from './inlineComments.ts';
 
 export class RefreshService implements vscode.Disposable {
   readonly #subscriptions: vscode.Disposable[] = [];
@@ -13,6 +14,7 @@ export class RefreshService implements vscode.Disposable {
     private readonly service: DocumentationService,
     private readonly codeLens: HeaderDocCodeLensProvider,
     private readonly virtualDocuments: DocumentationContentProvider,
+    private readonly inlineComments: InlineDocumentationController,
   ) {
     this.#subscriptions.push(
       vscode.workspace.onDidChangeTextDocument((event) => this.changed(event.document.uri)),
@@ -25,7 +27,7 @@ export class RefreshService implements vscode.Disposable {
       })),
       vscode.window.onDidChangeActiveTextEditor((editor) => this.schedule(editor?.document.uri)),
       vscode.workspace.onDidChangeConfiguration((event) => {
-        if (event.affectsConfiguration('cppHeaderDocLens')) {
+        if (event.affectsConfiguration('cppHeadDoc')) {
           this.rebuildWatchers();
           this.refreshNow();
         }
@@ -52,6 +54,7 @@ export class RefreshService implements vscode.Disposable {
     this.service.clear();
     this.codeLens.refresh();
     this.virtualDocuments.refresh();
+    this.inlineComments.refresh();
   }
 
   rebuildWatchers(): void {

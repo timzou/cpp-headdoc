@@ -2,24 +2,27 @@
 
 ## 配置入口
 
-DocLens 的设置前缀为 `cppHeaderDocLens`，可以写入用户设置或工作区 `.vscode/settings.json`。工作区配置示例：
+C++ HeadDoc 的设置前缀为 `cppHeadDoc`，可以写入用户设置或工作区 `.vscode/settings.json`。工作区配置示例：
 
 ```json
 {
   "editor.codeLens": true,
-  "cppHeaderDocLens.enabled": true,
-  "cppHeaderDocLens.showCodeLens": true,
-  "cppHeaderDocLens.showHover": true,
-  "cppHeaderDocLens.summaryStyle": "briefAndTags",
-  "cppHeaderDocLens.maxSummaryLength": 180,
-  "cppHeaderDocLens.showParametersInCodeLens": true,
-  "cppHeaderDocLens.showReturnValueInCodeLens": true,
-  "cppHeaderDocLens.headerExtensions": [".h", ".hpp", ".hh", ".hxx"],
-  "cppHeaderDocLens.sourceExtensions": [".c", ".cc", ".cpp", ".cxx"],
-  "cppHeaderDocLens.maxCommentSearchLines": 40,
-  "cppHeaderDocLens.debounceMs": 300,
-  "cppHeaderDocLens.maxCacheEntries": 500,
-  "cppHeaderDocLens.logLevel": "error"
+  "cppHeadDoc.enabled": true,
+  "cppHeadDoc.showInlineComments": true,
+  "cppHeadDoc.inlineCommentsExpanded": false,
+  "cppHeadDoc.inlineCommentTextSize": "medium",
+  "cppHeadDoc.showCodeLens": true,
+  "cppHeadDoc.showHover": true,
+  "cppHeadDoc.summaryStyle": "briefAndTags",
+  "cppHeadDoc.maxSummaryLength": 180,
+  "cppHeadDoc.showParametersInCodeLens": true,
+  "cppHeadDoc.showReturnValueInCodeLens": true,
+  "cppHeadDoc.headerExtensions": [".h", ".hpp", ".hh", ".hxx"],
+  "cppHeadDoc.sourceExtensions": [".c", ".cc", ".cpp", ".cxx"],
+  "cppHeadDoc.maxCommentSearchLines": 40,
+  "cppHeadDoc.debounceMs": 300,
+  "cppHeadDoc.maxCacheEntries": 500,
+  "cppHeadDoc.logLevel": "error"
 }
 ```
 
@@ -30,6 +33,8 @@ DocLens 的设置前缀为 `cppHeaderDocLens`，可以写入用户设置或工�
 - `briefAndTags`：追加参数说明和 `@return` 内容。
 
 数值设置会按贡献点中声明的范围校准。扩展名会转为小写、去重，并自动补充前导点。
+
+`inlineCommentTextSize` 提供三档相对字号。内联文档使用紧凑的换行布局，参数按顺序显示不同颜色的标记，并随编辑器宽度自动换行。
 
 ## Doxygen 书写
 
@@ -52,7 +57,7 @@ public:
 
 ## 语言服务连接
 
-DocLens 通过 VS Code 的两个标准命令获取数据：文档符号用于发现实现，声明提供程序用于选择头文件声明。因此，CodeLens、Hover 和声明跳转的准确性取决于当前启用的语言服务。
+C++ HeadDoc 通过 VS Code 的两个标准命令获取数据：文档符号用于发现实现，声明提供程序用于选择头文件声明。因此，内联文档、CodeLens、Hover 和声明跳转的准确性取决于当前启用的语言服务。
 
 ### clangd
 
@@ -89,4 +94,4 @@ cmake --build build
 
 ## 远程工作区
 
-Remote-SSH、WSL 和 Dev Containers 中，请在远程窗口安装 workspace 版本的 DocLens，并在同一环境运行 clangd 或 Microsoft C/C++ 语言服务。CMake 构建目录和 `compile_commands.json` 应属于远程工作区，路径、编译器和系统头文件也应由远程环境解析。
+Remote-SSH、WSL 和 Dev Containers 中，请在远程窗口安装 workspace 版本的 C++ HeadDoc，并在同一环境运行 clangd 或 Microsoft C/C++ 语言服务。CMake 构建目录和 `compile_commands.json` 应属于远程工作区，路径、编译器和系统头文件也应由远程环境解析。

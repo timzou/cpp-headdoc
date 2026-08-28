@@ -18,7 +18,7 @@ export class DocumentationContentProvider implements vscode.TextDocumentContentP
 
   async show(resolved: ResolvedDocumentation): Promise<void> {
     const id = crypto.randomUUID();
-    const uri = vscode.Uri.from({ scheme: 'cpp-header-doc', path: `/${id}/${safeName(resolved.qualifiedName)}.md` });
+    const uri = vscode.Uri.from({ scheme: 'cpp-head-doc', path: `/${id}/${safeName(resolved.qualifiedName)}.md` });
     this.#entries.set(id, { target: resolved.target, fallback: resolved });
     this.#lastUri = uri;
     await vscode.commands.executeCommand('vscode.openWith', uri, 'vscode.markdown.preview.editor');
@@ -26,7 +26,7 @@ export class DocumentationContentProvider implements vscode.TextDocumentContentP
 
   async provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): Promise<string> {
     const entry = this.#entries.get(idFromUri(uri));
-    if (!entry) return '# C++ Header DocLens\n\nDocumentation is no longer available.\n';
+    if (!entry) return '# C++ HeadDoc\n\nDocumentation is no longer available.\n';
     const resolved = await this.service.resolveTarget(entry.target, token) ?? entry.fallback;
     entry.fallback = resolved;
     return formatMarkdown({
@@ -63,7 +63,7 @@ export class DocumentationContentProvider implements vscode.TextDocumentContentP
   refresh(): void {
     for (const id of [...this.#entries.keys()]) {
       const entry = this.#entries.get(id);
-      if (entry) this.#changed.fire(vscode.Uri.from({ scheme: 'cpp-header-doc', path: `/${id}/${safeName(entry.fallback.qualifiedName)}.md` }));
+      if (entry) this.#changed.fire(vscode.Uri.from({ scheme: 'cpp-head-doc', path: `/${id}/${safeName(entry.fallback.qualifiedName)}.md` }));
     }
   }
 

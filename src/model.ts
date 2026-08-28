@@ -32,6 +32,7 @@ export interface ParsedDocumentation {
 }
 
 export type SummaryStyle = 'brief' | 'briefAndParams' | 'briefAndTags';
+export type InlineCommentTextSize = 'small' | 'medium' | 'large';
 
 export interface SummaryOptions {
   style: SummaryStyle;

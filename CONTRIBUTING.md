@@ -1,6 +1,6 @@
 # 贡献指南
 
-感谢参与 C++ Header DocLens。提交问题、改进文档或贡献代码时，请围绕“让头文件 Doxygen 更快到达实现位置”这一目标展开。
+感谢参与 C++ HeadDoc。提交问题、改进文档或贡献代码时，请围绕“让头文件 Doxygen 更快到达实现位置”这一目标展开。
 
 ## 开发环境
 
@@ -51,7 +51,7 @@
 
 - VS Code、Node.js、语言服务和操作系统版本。
 - 使用的文件扩展名、构建系统及 `compile_commands.json` 位置。
-- `C++ Header DocLens: Check Setup` 输出中的关键状态。
+- `C++ HeadDoc: Check Setup` 输出中的关键状态。
 - 可复现的头文件声明、实现签名和 Doxygen 标签示例；请先移除私密路径、密钥及业务数据。
 
 ## Pull Request

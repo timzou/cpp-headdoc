@@ -39,7 +39,7 @@ xvfb-run -a npm run test:integration
 `npm run test:unit` 使用 Mocha 和 `tsx`，覆盖：
 
 - Doxygen 注释清理、标签解析和注释边界提取。
-- 摘要与 Markdown 渲染、Unicode 截断和 Markdown 安全处理。
+- 紧凑内联渲染、彩色参数标记、三档字号、摘要与 Markdown 安全处理。
 - LRU 缓存和并发信号量。
 
 ### 集成测试
@@ -47,18 +47,18 @@ xvfb-run -a npm run test:integration
 `npm run test:integration` 会编译扩展与集成测试，然后启动 VS Code Extension Host。测试 fixture 提供模拟的文档符号和声明服务，验证：
 
 - 扩展激活。
-- 从头文件生成 CodeLens 摘要和 Hover。
-- 只读 Markdown 文档视图。
+- 从头文件生成内联文档、CodeLens 摘要和 Hover。
+- 按需打开只读 Markdown 预览。
 - 声明跳转、头文件编辑刷新、多声明候选排序和环境检查命令。
 
 测试入口为 `test/runIntegration.mjs`，集成用例位于 `test/integration/index.ts`。
 
 ### 打包验证
 
-`npm run package` 先编译扩展，再生成 `release/cpp-header-doclens-0.1.0.vsix`。VSIX 可用以下命令安装验证：
+`npm run package` 先编译扩展，再生成 `release/cpp-headdoc-0.2.0.vsix`。VSIX 可用以下命令安装验证：
 
 ```bash
-code --install-extension release/cpp-header-doclens-0.1.0.vsix
+code --install-extension release/cpp-headdoc-0.2.0.vsix
 ```
 
 ## CI 矩阵
@@ -70,8 +70,8 @@ code --install-extension release/cpp-header-doclens-0.1.0.vsix
 示例工程可在 WSL/Linux 中执行：
 
 ```bash
-cmake -S examples/basic-cmake -B /tmp/cpp-header-doclens-build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-cmake --build /tmp/cpp-header-doclens-build
+cmake -S examples/basic-cmake -B /tmp/cpp-headdoc-build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+cmake --build /tmp/cpp-headdoc-build
 ```
 
 该工程同时验证头文件 Doxygen、实现定义和 `compile_commands.json` 的工作区布局。

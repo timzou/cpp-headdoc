@@ -3,7 +3,7 @@ import Mocha from 'mocha';
 import * as vscode from 'vscode';
 import { DocumentationService } from '../../src/documentationService.ts';
 
-const extensionId = 'timzou93.cpp-header-doclens';
+const extensionId = 'timzou93.cpp-headdoc';
 const fixtureRoot = vscode.Uri.file(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '');
 const sourceUri = vscode.Uri.joinPath(fixtureRoot, 'src', 'DeviceController.cpp');
 const emptyUri = vscode.Uri.joinPath(fixtureRoot, 'src', 'Empty.cpp');
@@ -23,7 +23,7 @@ export async function run(): Promise<void> {
 }
 
 function defineTests(): void {
-  suite('C++ Header DocLens integration', () => {
+  suite('C++ HeadDoc integration', () => {
     const disposables: vscode.Disposable[] = [];
 
     suiteSetup(async () => {
@@ -55,11 +55,12 @@ function defineTests(): void {
       assert.equal(vscode.extensions.getExtension(extensionId)?.isActive, true);
     });
 
-    test('resolves a recessed CodeLens summary from the header', async () => {
+    test('resolves a compact collapsed CodeLens summary from the header', async () => {
       const lenses = await codeLenses(sourceUri);
       const lens = lenses.find((item) => item.command?.title.includes('启动 FPGA 数据采集'));
       assert.ok(lens?.command);
       assert.match(lens.command.title, /^\$\(chevron-right\) \$\(book\)/);
+      assert.equal(lens.command.command, 'cppHeadDoc.toggleInlineDocumentation');
       assert.match(lens.command.title, /sampleRate/);
       assert.match(lens.command.title, /返回/);
     });
@@ -73,11 +74,11 @@ function defineTests(): void {
       assert.match(markdown, /启动成功返回/);
     });
 
-    test('opens a readonly Markdown document from CodeLens', async () => {
+    test('opens the optional readonly Markdown preview', async () => {
       const lens = (await codeLenses(sourceUri)).find((item) => item.command?.title.includes('启动 FPGA'));
       assert.ok(lens?.command);
-      await vscode.commands.executeCommand(lens.command.command, lens.command.arguments?.[0]);
-      const document = await waitFor(() => vscode.workspace.textDocuments.find((item) => item.uri.scheme === 'cpp-header-doc'));
+      await vscode.commands.executeCommand('cppHeadDoc.openMarkdownPreview', lens.command.arguments?.[0]);
+      const document = await waitFor(() => vscode.workspace.textDocuments.find((item) => item.uri.scheme === 'cpp-head-doc'));
       assert.ok(document);
       assert.match(document.getText(), /DeviceController::startAcquisition/);
       assert.match(document.getText(), /DeviceController\.hpp/);
@@ -87,7 +88,7 @@ function defineTests(): void {
       const lens = (await codeLenses(sourceUri)).find((item) => item.command?.title.includes('启动 FPGA'));
       const resolved: unknown = lens?.command?.arguments?.[0];
       assert.ok(resolved);
-      await vscode.commands.executeCommand('cppHeaderDocLens.goToDeclaration', resolved);
+      await vscode.commands.executeCommand('cppHeadDoc.goToDeclaration', resolved);
       assert.equal(vscode.window.activeTextEditor?.document.uri.toString(), headerUri.toString());
       assert.match(vscode.window.activeTextEditor?.document.getText(vscode.window.activeTextEditor.selection) ?? '', /startAcquisition/);
     });
@@ -113,7 +114,7 @@ function defineTests(): void {
     test('hides the CodeLens for an undocumented function', async () => {
       const lenses = await codeLenses(sourceUri);
       const undocumented = lenses.find((item) => item.range.start.line === 12);
-      assert.equal(undocumented?.command?.command, 'cppHeaderDocLens.noop');
+      assert.equal(undocumented?.command?.command, 'cppHeadDoc.noop');
       assert.equal(undocumented?.command?.title, '');
     });
 
@@ -144,7 +145,7 @@ function defineTests(): void {
 
     test('check setup command completes with the mock language service', async () => {
       await openCpp(sourceUri);
-      await vscode.commands.executeCommand('cppHeaderDocLens.checkSetup');
+      await vscode.commands.executeCommand('cppHeadDoc.checkSetup');
     });
   });
 }

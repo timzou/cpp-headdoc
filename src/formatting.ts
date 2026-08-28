@@ -1,4 +1,9 @@
-import type { MarkdownDocumentInput, ParsedDocumentation, SummaryOptions } from './model.ts';
+import type {
+  InlineCommentTextSize,
+  MarkdownDocumentInput,
+  ParsedDocumentation,
+  SummaryOptions,
+} from './model.ts';
 
 export function truncateGraphemes(value: string, maximum: number): string {
   const segments = [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(value)];
@@ -33,6 +38,53 @@ export function escapeMarkdownInline(value: string): string {
     if (part.startsWith('`') && part.endsWith('`')) return part;
     return part.replace(/[\\[\]()*_<>#`]/g, '\\$&');
   }).join('');
+}
+
+export function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[character] ?? character);
+}
+
+export function formatInlineComment(input: MarkdownDocumentInput, size: InlineCommentTextSize): string {
+  const doc = input.documentation;
+  const lines: string[] = [`<code>${escapeHtml(input.signature || input.qualifiedName)}</code>`];
+  const item = (label: string, value: string): string => `<code>${escapeHtml(label)}</code> — ${escapeHtml(value)}`;
+  const section = (label: string, values: readonly string[]): void => {
+    if (values.length > 0) lines.push(`<strong>${escapeHtml(label)}：</strong> ${values.join('　')}`);
+  };
+
+  if (doc.brief) lines.push(`<strong>${escapeHtml(doc.brief)}</strong>`);
+  for (const detail of doc.details) lines.push(escapeHtml(detail));
+  if (doc.parameters.length > 0) {
+    section('参数', doc.parameters.map((parameter, index) => {
+      const direction = parameter.direction ? ` [${escapeHtml(parameter.direction)}]` : '';
+      return `${parameterMarker(index)} ${item(`${parameter.name}${direction}`, parameter.description)}`;
+    }));
+  }
+  section('模板参数', doc.templateParameters.map((parameter, index) =>
+    `${parameterMarker(index)} ${item(parameter.name, parameter.description)}`));
+  if (doc.returns) section('返回', [escapeHtml(doc.returns)]);
+  section('返回状态', doc.returnValues.map((entry) => item(entry.value, entry.description)));
+  section('异常', doc.throws.map((entry) => item(entry.type, entry.description)));
+  section('注意', doc.notes.map(escapeHtml));
+  section('警告', doc.warnings.map(escapeHtml));
+  if (doc.deprecated) section('弃用', [escapeHtml(doc.deprecated)]);
+  section('参见', doc.seeAlso.map(escapeHtml));
+  lines.push(`<small>声明：<code>${escapeHtml(input.declarationLabel)}</code></small>`);
+  const content = lines.join('<br>');
+  if (size === 'small') return `<p><small>${content}</small></p>`;
+  if (size === 'large') return `<h4>${content}</h4>`;
+  return `<p>${content}</p>`;
+}
+
+function parameterMarker(index: number): string {
+  const markers = ['🔵', '🟢', '🟠', '🟣', '🟡', '🔴'];
+  return markers[index % markers.length] ?? '•';
 }
 
 function renderParagraph(value: string): string {
