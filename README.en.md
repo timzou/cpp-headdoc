@@ -4,7 +4,7 @@ English | [简体中文](README.md)
 
 C++ HeadDoc brings Doxygen documentation from header declarations directly beside `.cpp` and `.c` implementations. The initial view stays compact; CodeLens expands wrapped documentation with three relative text sizes. Hover, declaration navigation, and an optional Markdown preview provide quick and detailed access.
 
-Current version: `0.2.0`
+Current version: `0.2.1`
 
 ## Interface
 
@@ -34,7 +34,7 @@ C++ HeadDoc relies on the language service for symbol and declaration locations.
 Download the VSIX from [GitHub Releases](https://github.com/timzou/cpp-headdoc/releases/latest), then run:
 
 ```powershell
-code --install-extension cpp-headdoc-0.2.0.vsix
+code --install-extension cpp-headdoc-0.2.1.vsix
 ```
 
 You can also select **Install from VSIX…** from the Extensions view menu.
@@ -44,7 +44,7 @@ To package from source:
 ```powershell
 npm ci
 npm run package
-code --install-extension release/cpp-headdoc-0.2.0.vsix
+code --install-extension release/cpp-headdoc-0.2.1.vsix
 ```
 
 ## Quick start

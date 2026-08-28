@@ -108,13 +108,11 @@ export class InlineDocumentationController implements vscode.Disposable {
       existing.resolved = resolved;
       existing.thread.range = anchorRange(resolved);
       existing.thread.comments = [comment];
-      existing.thread.label = resolved.declarationLabel;
       return existing;
     }
     const thread = this.#controller.createCommentThread(resolved.sourceUri, anchorRange(resolved), [comment]);
     thread.canReply = false;
     thread.contextValue = 'cppHeadDoc.readonlyDocumentation';
-    thread.label = resolved.declarationLabel;
     const initialState = getConfig(resolved.sourceUri).inlineCommentsExpanded
       ? vscode.CommentThreadCollapsibleState.Expanded
       : vscode.CommentThreadCollapsibleState.Collapsed;
@@ -176,7 +174,6 @@ function createComment(resolved: ResolvedDocumentation): vscode.Comment {
     body,
     mode: vscode.CommentMode.Preview,
     author: { name: 'C++ HeadDoc' },
-    label: resolved.declarationLabel,
     contextValue: 'cppHeadDoc.readonlyDocumentation',
   };
 }
