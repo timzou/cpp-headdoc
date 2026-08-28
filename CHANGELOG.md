@@ -7,6 +7,7 @@
 ### Changed
 
 - 声明位置在展开文档中集中显示一次，使线程标题更紧凑。
+- Marketplace 扩展标识为 `TimZou.cpp-headdoc`。
 
 ## [0.2.0] - 2026-08-28
 

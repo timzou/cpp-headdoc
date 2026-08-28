@@ -3,7 +3,7 @@ import Mocha from 'mocha';
 import * as vscode from 'vscode';
 import { DocumentationService } from '../../src/documentationService.ts';
 
-const extensionId = 'timzou93.cpp-headdoc';
+const extensionId = 'TimZou.cpp-headdoc';
 const fixtureRoot = vscode.Uri.file(vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '');
 const sourceUri = vscode.Uri.joinPath(fixtureRoot, 'src', 'DeviceController.cpp');
 const emptyUri = vscode.Uri.joinPath(fixtureRoot, 'src', 'Empty.cpp');

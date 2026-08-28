@@ -155,14 +155,14 @@ Ubuntu 集成测试使用 `xvfb-run -a npm run test:integration`。架构、配�
 
 确认 `cppHeadDoc.enabled`、`cppHeadDoc.showInlineComments` 和 `editor.codeLens` 的设置，等待语言服务索引完成，然后运行 `C++ HeadDoc: Check Setup`。
 
-### 为什么 VS Code 扩展市场中搜索不到
+### 从 VS Code 扩展市场安装
 
-GitHub Release 和 Visual Studio Marketplace 是两套独立的发布渠道。当前可从 GitHub Release 安装 VSIX；Marketplace 版本需要使用 `timzou93` publisher 单独认证并发布。
+访问 [C++ HeadDoc Marketplace 页面](https://marketplace.visualstudio.com/items?itemName=TimZou.cpp-headdoc)，或在扩展视图中搜索 `C++ HeadDoc`。扩展标识为 `TimZou.cpp-headdoc`。
 
 ## 卸载
 
 ```powershell
-code --uninstall-extension timzou93.cpp-headdoc
+code --uninstall-extension TimZou.cpp-headdoc
 ```
 
 ## 许可证

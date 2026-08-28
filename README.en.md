@@ -155,14 +155,14 @@ Ubuntu integration tests use `xvfb-run -a npm run test:integration`. See `docs/`
 
 Check `cppHeadDoc.enabled`, `cppHeadDoc.showInlineComments`, and `editor.codeLens`, wait for language-service indexing, then run `C++ HeadDoc: Check Setup`.
 
-### Why is the extension missing from the VS Code Marketplace?
+### Install from the VS Code Marketplace
 
-GitHub Releases and Visual Studio Marketplace are separate publishing channels. The VSIX is currently available from GitHub Releases; a Marketplace listing requires a separate authenticated publication under the `timzou93` publisher.
+Open the [C++ HeadDoc Marketplace page](https://marketplace.visualstudio.com/items?itemName=TimZou.cpp-headdoc), or search for `C++ HeadDoc` in the Extensions view. The extension identifier is `TimZou.cpp-headdoc`.
 
 ## Uninstall
 
 ```powershell
-code --uninstall-extension timzou93.cpp-headdoc
+code --uninstall-extension TimZou.cpp-headdoc
 ```
 
 ## License

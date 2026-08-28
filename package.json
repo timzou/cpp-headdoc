@@ -3,7 +3,7 @@
   "displayName": "C++ HeadDoc",
   "description": "Display header Doxygen documentation as compact, collapsible inline comments above C/C++ definitions.",
   "version": "0.2.1",
-  "publisher": "timzou93",
+  "publisher": "TimZou",
   "license": "MIT",
   "repository": {
     "type": "git",
