@@ -1,37 +1,50 @@
 # Changelog
 
-本文件记录 C++ HeadDoc 的公开版本变化。
+This file records public C++ HeadDoc releases. [简体中文](CHANGELOG.zh-CN.md)
+
+## [0.2.2] - 2026-08-31
+
+### Added
+
+- English and Simplified Chinese commands, settings, messages, and documentation labels that follow the VS Code display language.
+- A Marketplace icon that illustrates header documentation flowing into a C++ implementation.
+
+### Changed
+
+- The Marketplace uses the English README by default and links to a dedicated Simplified Chinese README.
+- The interface screenshot is served from a public HTTPS GitHub asset for Marketplace and VS Code rendering.
+- Expanded documentation places the function signature in the native title row and starts the body with the documentation summary for a tighter layout.
 
 ## [0.2.1] - 2026-08-28
 
 ### Changed
 
-- 声明位置在展开文档中集中显示一次，使线程标题更紧凑。
-- Marketplace 扩展标识为 `TimZou.cpp-headdoc`。
+- Declaration location is shown once in expanded documentation for a compact thread header.
+- The Marketplace extension identifier is `TimZou.cpp-headdoc`.
 
 ## [0.2.0] - 2026-08-28
 
 ### Added
 
-- 在实现旁显示可折叠的原生只读内联文档，展开后随编辑器宽度自动换行。
-- 提供 `small`、`medium`、`large` 三档相对字号。
-- 使用稳定的彩色参数标记区分同一函数中的参数。
-- 提供中英文 README 与实际界面截图。
+- Collapsible native readonly inline documentation beside implementations, with automatic wrapping.
+- `small`, `medium`, and `large` relative text-size tiers.
+- Stable colored markers that distinguish parameters within a function.
+- English and Simplified Chinese documentation with an interface screenshot.
 
 ### Changed
 
-- 项目与扩展显示名称更新为 C++ HeadDoc。
-- 内联文档采用紧凑排版，CodeLens 用于展开与折叠。
-- Markdown 预览调整为按需打开的辅助命令。
+- The project and extension display name are C++ HeadDoc.
+- Inline documentation uses compact formatting with CodeLens expand and collapse controls.
+- Markdown preview is available as an optional command.
 
 ## [0.1.0] - 2026-08-27
 
 ### Added
 
-- 从头文件 Doxygen 注释生成实现位置的 CodeLens 摘要。
-- 在 C/C++ 实现上提供完整 Hover 文档。
-- 提供只读 `cpp-header-doc` Markdown 文档视图。
-- 支持从文档视图跳转到头文件声明。
-- 支持 `clangd` 与 Microsoft C/C++ 扩展提供的符号和声明结果。
-- 提供工作区配置、刷新、启停切换与环境检查命令。
-- 提供 Windows 与 Ubuntu 的 Node 24 CI，以及 VSIX 打包产物上传。
+- CodeLens summaries generated from header Doxygen documentation.
+- Full Hover documentation over C/C++ implementations.
+- Readonly `cpp-header-doc` Markdown documents.
+- Navigation from documentation to header declarations.
+- Symbol and declaration results from clangd and Microsoft C/C++.
+- Workspace settings, refresh, enable/disable, and setup-check commands.
+- Windows and Ubuntu Node 24 CI with VSIX packaging artifacts.

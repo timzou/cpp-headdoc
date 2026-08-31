@@ -54,47 +54,49 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('cppHeadDoc.noop', () => undefined),
     vscode.commands.registerCommand('cppHeadDoc.refresh', () => {
       refresh.refreshNow();
-      void vscode.window.showInformationMessage('C++ HeadDoc refreshed.');
+      void vscode.window.showInformationMessage(vscode.l10n.t('C++ HeadDoc refreshed.'));
     }),
     vscode.commands.registerCommand('cppHeadDoc.toggle', async () => {
       try {
         const current = getConfig(vscode.window.activeTextEditor?.document.uri).enabled;
         await vscode.workspace.getConfiguration('cppHeadDoc').update('enabled', !current, vscode.ConfigurationTarget.Workspace);
         refresh.refreshNow();
-        void vscode.window.showInformationMessage(`C++ HeadDoc ${current ? 'disabled' : 'enabled'} for this workspace.`);
+        void vscode.window.showInformationMessage(current
+          ? vscode.l10n.t('C++ HeadDoc disabled for this workspace.')
+          : vscode.l10n.t('C++ HeadDoc enabled for this workspace.'));
       } catch (error) {
         logger.write('error', 'Unable to update the workspace setting.', error);
-        void vscode.window.showErrorMessage('C++ HeadDoc could not update the workspace setting.');
+        void vscode.window.showErrorMessage(vscode.l10n.t('C++ HeadDoc could not update the workspace setting.'));
       }
     }),
     vscode.commands.registerCommand('cppHeadDoc.showDocumentation', async (argument?: unknown) => {
       try {
         const resolved = resolveArgument(argument, inlineComments) ?? await resolveAtCursor(service);
         if (resolved) inlineComments.show(resolved);
-        else void vscode.window.showInformationMessage('No header documentation was found at the current function.');
+        else void vscode.window.showInformationMessage(vscode.l10n.t('No header documentation was found at the current function.'));
       } catch (error) {
         logger.write('error', 'Unable to show inline documentation.', error);
-        void vscode.window.showErrorMessage('C++ HeadDoc could not show the inline documentation.');
+        void vscode.window.showErrorMessage(vscode.l10n.t('C++ HeadDoc could not show the inline documentation.'));
       }
     }),
     vscode.commands.registerCommand('cppHeadDoc.toggleInlineDocumentation', async (argument?: unknown) => {
       try {
         const resolved = resolveArgument(argument, inlineComments) ?? await resolveAtCursor(service);
         if (resolved) inlineComments.toggle(resolved);
-        else void vscode.window.showInformationMessage('No header documentation was found at the current function.');
+        else void vscode.window.showInformationMessage(vscode.l10n.t('No header documentation was found at the current function.'));
       } catch (error) {
         logger.write('error', 'Unable to toggle inline documentation.', error);
-        void vscode.window.showErrorMessage('C++ HeadDoc could not toggle the inline documentation.');
+        void vscode.window.showErrorMessage(vscode.l10n.t('C++ HeadDoc could not toggle the inline documentation.'));
       }
     }),
     vscode.commands.registerCommand('cppHeadDoc.openMarkdownPreview', async (argument?: unknown) => {
       try {
         const resolved = resolveArgument(argument, inlineComments) ?? await resolveAtCursor(service);
         if (resolved) await virtualDocuments.show(resolved);
-        else void vscode.window.showInformationMessage('No header documentation was found at the current function.');
+        else void vscode.window.showInformationMessage(vscode.l10n.t('No header documentation was found at the current function.'));
       } catch (error) {
         logger.write('error', 'Unable to open the Markdown preview.', error);
-        void vscode.window.showErrorMessage('C++ HeadDoc could not open the Markdown preview.');
+        void vscode.window.showErrorMessage(vscode.l10n.t('C++ HeadDoc could not open the Markdown preview.'));
       }
     }),
     vscode.commands.registerCommand('cppHeadDoc.goToDeclaration', async (argument?: unknown) => {
@@ -113,7 +115,7 @@ export function activate(context: vscode.ExtensionContext): void {
         else await virtualDocuments.goToDeclaration();
       } catch (error) {
         logger.write('error', 'Unable to open the header declaration.', error);
-        void vscode.window.showErrorMessage('C++ HeadDoc could not open the header declaration.');
+        void vscode.window.showErrorMessage(vscode.l10n.t('C++ HeadDoc could not open the header declaration.'));
       }
     }),
     vscode.commands.registerCommand('cppHeadDoc.checkSetup', async () => {
@@ -146,39 +148,40 @@ async function resolveAtCursor(service: DocumentationService): Promise<ResolvedD
 
 async function checkSetup(service: DocumentationService, logger: Logger): Promise<void> {
   const editor = vscode.window.activeTextEditor;
-  logger.append('--- Setup check ---');
+  logger.append(vscode.l10n.t('--- Setup check ---'));
   if (!editor) {
-    logger.append('Active editor: unavailable');
+    logger.append(vscode.l10n.t('Active editor: unavailable'));
     logger.show();
-    void vscode.window.showWarningMessage('Open a C or C++ source file before checking setup.');
+    void vscode.window.showWarningMessage(vscode.l10n.t('Open a C or C++ source file before checking setup.'));
     return;
   }
   const document = editor.document;
   const config = getConfig(document.uri);
   const codeLensEnabled = vscode.workspace.getConfiguration('editor', document.uri).get('codeLens', true);
-  logger.append(`Language: ${document.languageId}`);
-  logger.append(`Extension enabled: ${config.enabled}`);
-  logger.append(`Editor CodeLens enabled: ${codeLensEnabled}`);
-  logger.append(`Source extension: ${fileExtension(document.uri)} (${isSourceUri(document.uri, config) ? 'supported' : 'unsupported'})`);
+  logger.append(vscode.l10n.t('Language: {0}', document.languageId));
+  logger.append(vscode.l10n.t('Extension enabled: {0}', String(config.enabled)));
+  logger.append(vscode.l10n.t('Editor CodeLens enabled: {0}', String(codeLensEnabled)));
+  logger.append(vscode.l10n.t('Source extension: {0} ({1})', fileExtension(document.uri),
+    isSourceUri(document.uri, config) ? vscode.l10n.t('supported') : vscode.l10n.t('unsupported')));
   const source = new vscode.CancellationTokenSource();
   try {
     const symbols = await service.getSymbols(document, source.token);
-    logger.append(`Function definitions: ${symbols.length}`);
+    logger.append(vscode.l10n.t('Function definitions: {0}', String(symbols.length)));
     if (symbols[0]) {
       const declarations = normalizeDeclarations(await vscode.commands.executeCommand<
         vscode.Location | readonly vscode.Location[] | readonly vscode.LocationLink[] | undefined
       >('vscode.executeDeclarationProvider', document.uri, symbols[0].selectionRange.start));
-      logger.append(`Declaration candidates: ${declarations.length}`);
+      logger.append(vscode.l10n.t('Declaration candidates: {0}', String(declarations.length)));
     }
     logger.show();
     const ready = config.enabled && codeLensEnabled && isSourceUri(document.uri, config) && symbols.length > 0;
     void vscode.window.showInformationMessage(ready
-      ? 'C++ HeadDoc setup is ready.'
-      : 'C++ HeadDoc setup needs attention. See the output channel.');
+      ? vscode.l10n.t('C++ HeadDoc setup is ready.')
+      : vscode.l10n.t('C++ HeadDoc setup needs attention. See the output channel.'));
   } catch (error) {
     logger.write('error', 'Setup check failed', error);
     logger.show();
-    void vscode.window.showWarningMessage('Setup check could not query the current C/C++ language service.');
+    void vscode.window.showWarningMessage(vscode.l10n.t('Setup check could not query the current C/C++ language service.'));
   } finally {
     source.dispose();
   }

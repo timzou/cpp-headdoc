@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { getConfig, isSourceUri } from './config.ts';
 import type { DocumentationService, DocumentationTarget, ResolvedDocumentation } from './documentationService.ts';
 import { formatInlineComment } from './formatting.ts';
+import { localizedFormattingLabels } from './localization.ts';
 import type { ImplementationSymbol } from './symbols.ts';
 
 interface ThreadEntry {
@@ -166,14 +167,14 @@ function createComment(resolved: ResolvedDocumentation): vscode.Comment {
     signature: resolved.signature,
     declarationLabel: resolved.declarationLabel,
     documentation: resolved.documentation,
-  }, config.inlineCommentTextSize));
+  }, config.inlineCommentTextSize, false, localizedFormattingLabels()));
   body.isTrusted = false;
   body.supportHtml = true;
   body.supportThemeIcons = false;
   return {
     body,
     mode: vscode.CommentMode.Preview,
-    author: { name: '' },
+    author: { name: resolved.signature || resolved.qualifiedName },
     contextValue: 'cppHeadDoc.readonlyDocumentation',
   };
 }

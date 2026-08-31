@@ -62,7 +62,7 @@ function defineTests(): void {
       assert.match(lens.command.title, /^\$\(chevron-right\) \$\(book\)/);
       assert.equal(lens.command.command, 'cppHeadDoc.toggleInlineDocumentation');
       assert.match(lens.command.title, /sampleRate/);
-      assert.match(lens.command.title, /返回/);
+      assert.match(lens.command.title, /(返回值|Returns)/);
     });
 
     test('provides full safe hover documentation', async () => {

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import type { DocumentationService, DocumentationTarget, ResolvedDocumentation } from './documentationService.ts';
 import { formatMarkdown } from './formatting.ts';
+import { localizedFormattingLabels } from './localization.ts';
 import { LruCache } from './utilities.ts';
 
 interface VirtualEntry {
@@ -26,7 +27,7 @@ export class DocumentationContentProvider implements vscode.TextDocumentContentP
 
   async provideTextDocumentContent(uri: vscode.Uri, token: vscode.CancellationToken): Promise<string> {
     const entry = this.#entries.get(idFromUri(uri));
-    if (!entry) return '# C++ HeadDoc\n\nDocumentation is no longer available.\n';
+    if (!entry) return `# C++ HeadDoc\n\n${vscode.l10n.t('Documentation is no longer available.')}\n`;
     const resolved = await this.service.resolveTarget(entry.target, token) ?? entry.fallback;
     entry.fallback = resolved;
     return formatMarkdown({
@@ -34,7 +35,7 @@ export class DocumentationContentProvider implements vscode.TextDocumentContentP
       signature: resolved.signature,
       declarationLabel: resolved.declarationLabel,
       documentation: resolved.documentation,
-    });
+    }, true, localizedFormattingLabels());
   }
 
   async goToDeclaration(argument?: vscode.Uri | ResolvedDocumentation): Promise<void> {

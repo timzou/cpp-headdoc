@@ -4,6 +4,7 @@ import { describe, it } from 'mocha';
 import { parseDoxygen } from '../../src/doxygen.ts';
 import {
   escapeMarkdownInline,
+  englishFormattingLabels,
   formatCompactSummary,
   formatInlineComment,
   formatMarkdown,
@@ -33,10 +34,10 @@ describe('Formatting', () => {
     }), '启动采集 · rate：采样率');
     assert.equal(formatCompactSummary(documentation, {
       style: 'briefAndTags', maxLength: 100, showParameters: true, showReturnValue: true,
-    }), '启动采集 · rate：采样率 · 返回：是否成功');
+    }), '启动采集 · rate：采样率 · Returns: 是否成功');
     assert.equal(formatCompactSummary(documentation, {
       style: 'briefAndTags', maxLength: 100, showParameters: false, showReturnValue: true,
-    }), '启动采集 · 返回：是否成功');
+    }), '启动采集 · Returns: 是否成功');
     assert.equal(formatCompactSummary(documentation, {
       style: 'briefAndTags', maxLength: 100, showParameters: true, showReturnValue: false,
     }), '启动采集 · rate：采样率');
@@ -76,12 +77,16 @@ describe('Formatting', () => {
 
     const medium = formatInlineComment(input, 'medium');
     assert.match(medium, /^<p><code>Status readStatus\(int channel\) const<\/code><br>/);
-    assert.match(medium, /<strong>参数：<\/strong> 🔵 <code>channel \[in\]<\/code> — 通道编号\u3000🟢 <code>timeout<\/code> — 超时时间/);
-    assert.match(medium, /<br><strong>返回：<\/strong> 当前状态/);
+    assert.match(medium, /<strong>Parameters：<\/strong> 🔵 <code>channel \[in\]<\/code> — 通道编号\u3000🟢 <code>timeout<\/code> — 超时时间/);
+    assert.match(medium, /<br><strong>Returns：<\/strong> 当前状态/);
 
     const large = formatInlineComment(input, 'large');
     assert.match(large, /^<h4><code>Status readStatus\(int channel\) const<\/code><br>/);
-    assert.match(large, /<small>声明：<code>Status readStatus\(int channel\) const;<\/code><\/small><\/h4>$/);
+    assert.match(large, /<small>Declaration: <code>Status readStatus\(int channel\) const;<\/code><\/small><\/h4>$/);
+
+    const bodyOnly = formatInlineComment(input, 'medium', false);
+    assert.match(bodyOnly, /^<p><strong>读取设备状态<\/strong><br>/);
+    assert.equal(bodyOnly.includes('<code>Status readStatus(int channel) const</code>'), false);
   });
 
   it('HTML-escapes inline documentation while preserving the intended markup', () => {
@@ -106,10 +111,10 @@ describe('Formatting', () => {
     assert.ok(rendered.includes('&lt;img src=x onerror=alert(1)&gt; &amp; done'));
     assert.ok(rendered.includes('<code>ok</code> — &lt;em&gt;ready&lt;/em&gt;'));
     assert.ok(rendered.includes('<code>std::exception</code> — &lt;a href=&quot;https://example.com&quot;&gt;failure&lt;/a&gt;'));
-    assert.ok(rendered.includes('<strong>参数：</strong>'));
-    assert.ok(rendered.includes('<strong>返回：</strong>'));
-    assert.ok(rendered.includes('<strong>返回状态：</strong>'));
-    assert.ok(rendered.includes('<strong>异常：</strong>'));
+    assert.ok(rendered.includes('<strong>Parameters：</strong>'));
+    assert.ok(rendered.includes('<strong>Returns：</strong>'));
+    assert.ok(rendered.includes('<strong>Return values：</strong>'));
+    assert.ok(rendered.includes('<strong>Exceptions：</strong>'));
     assert.equal(rendered.includes('<script>'), false);
     assert.equal(rendered.includes('<b>unsafe</b>'), false);
     assert.equal(rendered.includes('<img'), false);
@@ -141,20 +146,20 @@ describe('Formatting', () => {
     });
 
     assert.match(markdown, /^### `Device::run`/);
-    assert.match(markdown, /\*\*声明：\*\* `bool run\\\(\\\)`/);
+    assert.match(markdown, /\*\*Declaration:\*\* `bool run\\\(\\\)`/);
     assert.match(markdown, /```cpp\nbool run\(\) \{\n\x20{2}\n\}/);
     assert.ok(markdown.includes('带有 \\[标记\\] 与 `inline *code*`'));
     assert.ok(markdown.includes('- 列表项 \\[需要转义\\]'));
     assert.doesNotMatch(markdown, /\* 列表项/);
     assert.ok(markdown.includes('- `result` `out`：结果 \\[对象\\]'));
-    assert.match(markdown, /#### 模板参数[\s\S]*- `T`：类型参数/);
-    assert.match(markdown, /#### 返回值[\s\S]*返回说明/);
-    assert.match(markdown, /#### 返回状态[\s\S]*- `ok`：成功/);
-    assert.match(markdown, /#### 异常[\s\S]*- `Error`：失败/);
-    assert.ok(markdown.includes('#### 注意\n\n> 注意 \\[内容\\]'));
-    assert.ok(markdown.includes('#### 警告\n\n> **警告：** 警告 \\*内容\\*'));
-    assert.match(markdown, /#### 弃用[\s\S]*> 使用新接口/);
-    assert.match(markdown, /#### 参见[\s\S]*- otherFunction\\\(\\\)/);
+    assert.match(markdown, /#### Template parameters[\s\S]*- `T`：类型参数/);
+    assert.match(markdown, /#### Returns[\s\S]*返回说明/);
+    assert.match(markdown, /#### Return values[\s\S]*- `ok`：成功/);
+    assert.match(markdown, /#### Exceptions[\s\S]*- `Error`：失败/);
+    assert.ok(markdown.includes('#### Notes\n\n> 注意 \\[内容\\]'));
+    assert.ok(markdown.includes('#### Warnings\n\n> **Warning:** 警告 \\*内容\\*'));
+    assert.match(markdown, /#### Deprecated[\s\S]*> 使用新接口/);
+    assert.match(markdown, /#### See also[\s\S]*- otherFunction\\\(\\\)/);
     assert.equal(markdown.includes('```\n}'), false);
   });
 
@@ -170,5 +175,27 @@ describe('Formatting', () => {
     }, false);
 
     assert.equal(markdown, '### `ns::f`\n\n只有摘要\n');
+  });
+
+  it('accepts localized labels independently from parsed documentation', () => {
+    const documentation = parseDoxygen(`/**
+     * @brief 状态
+     * @return 成功
+     */`);
+    assert.ok(documentation);
+    const labels = {
+      ...englishFormattingLabels,
+      parameters: '参数',
+      returns: '返回值',
+      declaration: '声明',
+    };
+    const rendered = formatInlineComment({
+      qualifiedName: 'run',
+      signature: 'bool run()',
+      declarationLabel: 'bool run();',
+      documentation,
+    }, 'medium', false, labels);
+    assert.ok(rendered.includes('<strong>返回值：</strong> 成功'));
+    assert.ok(rendered.includes('<small>声明:'));
   });
 });

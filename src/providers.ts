@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { getConfig, isSourceUri } from './config.ts';
 import type { DocumentationService, DocumentationTarget, ResolvedDocumentation } from './documentationService.ts';
 import { formatCompactSummary, formatMarkdown } from './formatting.ts';
+import { localizedFormattingLabels } from './localization.ts';
 import type { ImplementationSymbol } from './symbols.ts';
 
 class HeaderDocCodeLens extends vscode.CodeLens {
@@ -48,12 +49,12 @@ export class HeaderDocCodeLensProvider implements vscode.CodeLensProvider<Header
         maxLength: config.maxSummaryLength,
         showParameters: config.showParametersInCodeLens,
         showReturnValue: config.showReturnValueInCodeLens,
-      });
+      }, localizedFormattingLabels());
       if (summary) {
         codeLens.command = {
           command: 'cppHeadDoc.toggleInlineDocumentation',
           title: `$(${this.isExpanded(resolved.target) ? 'chevron-down' : 'chevron-right'}) $(book) ${summary}`,
-          tooltip: 'Expand or collapse header documentation',
+          tooltip: vscode.l10n.t('Expand or collapse header documentation'),
           arguments: [resolved],
         };
       }
@@ -99,7 +100,7 @@ function hoverFor(resolved: ResolvedDocumentation): vscode.Hover {
     signature: resolved.signature,
     declarationLabel: resolved.declarationLabel,
     documentation: resolved.documentation,
-  }, false));
+  }, false, localizedFormattingLabels()));
   value.isTrusted = false;
   value.supportHtml = false;
   value.supportThemeIcons = false;
