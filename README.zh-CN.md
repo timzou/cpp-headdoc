@@ -4,11 +4,11 @@
 
 C++ HeadDoc 把头文件声明上方的 Doxygen 文档显示在 `.cpp` / `.c` 实现旁。初始状态保持紧凑，点击 CodeLens 后显示可自动换行的完整文档，并支持三档相对字号；Hover、声明跳转和可选 Markdown 预览可用于快速浏览与深入阅读。
 
-当前版本：`0.2.2`
+当前版本：`0.2.3`
 
 ## 界面效果
 
-![C++ HeadDoc 在实现旁展开头文件文档](https://raw.githubusercontent.com/timzou/cpp-headdoc/main/images/inline-comments.png)
+![C++ HeadDoc 在实现旁展开头文件文档](https://cdn.jsdelivr.net/gh/timzou/cpp-headdoc@v0.2.3/images/inline-comments.png)
 
 扩展使用 VS Code 原生内联评论组件呈现文档，因此会跟随当前颜色主题，并在编辑器宽度变化时自动换行。截图展示点击函数上方 CodeLens 后的展开效果。
 
@@ -35,7 +35,7 @@ C++ HeadDoc 使用语言服务定位声明；编译器选项、宏和包含目�
 从 [GitHub Releases](https://github.com/timzou/cpp-headdoc/releases/latest) 下载 VSIX，然后执行：
 
 ```powershell
-code --install-extension cpp-headdoc-0.2.2.vsix
+code --install-extension cpp-headdoc-0.2.3.vsix
 ```
 
 也可以在 VS Code 扩展视图右上角菜单中选择“从 VSIX 安装…”。
@@ -45,7 +45,7 @@ code --install-extension cpp-headdoc-0.2.2.vsix
 ```powershell
 npm ci
 npm run package
-code --install-extension release/cpp-headdoc-0.2.2.vsix
+code --install-extension release/cpp-headdoc-0.2.3.vsix
 ```
 
 ## 快速开始

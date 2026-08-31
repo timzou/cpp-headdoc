@@ -2,6 +2,12 @@
 
 This file records public C++ HeadDoc releases. [简体中文](CHANGELOG.zh-CN.md)
 
+## [0.2.3] - 2026-08-31
+
+### Changed
+
+- The Marketplace interface screenshot is served through jsDelivr's versioned CDN for reliable rendering in VS Code.
+
 ## [0.2.2] - 2026-08-31
 
 ### Added

@@ -2,6 +2,12 @@
 
 本文件记录 C++ HeadDoc 的公开版本变化。[English](CHANGELOG.md)
 
+## [0.2.3] - 2026-08-31
+
+### Changed
+
+- Marketplace 界面截图使用 jsDelivr 版本化 CDN，在 VS Code 中稳定显示。
+
 ## [0.2.2] - 2026-08-31
 
 ### Added

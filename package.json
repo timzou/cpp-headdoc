@@ -2,7 +2,7 @@
   "name": "cpp-headdoc",
   "displayName": "C++ HeadDoc",
   "description": "%extension.description%",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "publisher": "TimZou",
   "license": "MIT",
   "repository": {
@@ -253,7 +253,7 @@
     "test:unit": "mocha --import=tsx \"test/unit/**/*.test.ts\"",
     "test:integration": "npm run compile && npm run compile:test && node test/runIntegration.mjs",
     "verify": "npm run check && npm run lint && npm run compile && npm run test:unit && npm run test:integration",
-    "package": "npm run compile && node -e \"require('node:fs').mkdirSync('release',{recursive:true})\" && vsce package --out release/cpp-headdoc-0.2.2.vsix"
+    "package": "npm run compile && node -e \"require('node:fs').mkdirSync('release',{recursive:true})\" && vsce package --out release/cpp-headdoc-0.2.3.vsix"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
