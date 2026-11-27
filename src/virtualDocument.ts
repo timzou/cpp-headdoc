@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getConfig } from './config.ts';
 import type { DocumentationService, DocumentationTarget, ResolvedDocumentation } from './documentationService.ts';
 import { formatMarkdown } from './formatting.ts';
 import { localizedFormattingLabels } from './localization.ts';
@@ -41,6 +42,17 @@ export class DocumentationContentProvider implements vscode.TextDocumentContentP
   async goToDeclaration(argument?: vscode.Uri | ResolvedDocumentation): Promise<void> {
     let resolved: ResolvedDocumentation | undefined;
     if (argument && !(argument instanceof vscode.Uri)) {
+      const { sourceUri, target, declaration } = argument;
+      if (getConfig(sourceUri).inlineCommentStyle === 'compact') {
+        await vscode.commands.executeCommand(
+          'editor.action.goToLocations',
+          sourceUri,
+          new vscode.Position(target.line, target.character),
+          [declaration],
+          'goto',
+        );
+        return;
+      }
       resolved = argument;
     } else {
       const uri = argument instanceof vscode.Uri ? argument : this.#lastUri;

@@ -127,6 +127,20 @@
           "default": true,
           "description": "%configuration.showInlineComments%"
         },
+        "cppHeadDoc.inlineCommentStyle": {
+          "type": "string",
+          "scope": "resource",
+          "enum": [
+            "default",
+            "compact"
+          ],
+          "default": "default",
+          "description": "%configuration.inlineCommentStyle%",
+          "enumDescriptions": [
+            "%configuration.inlineCommentStyle.default%",
+            "%configuration.inlineCommentStyle.compact%"
+          ]
+        },
         "cppHeadDoc.inlineCommentsExpanded": {
           "type": "boolean",
           "scope": "resource",

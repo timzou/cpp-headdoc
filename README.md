@@ -16,6 +16,7 @@ The extension uses VS Code's native inline comment component, follows the active
 
 - Readonly inline documentation beside functions, methods, constructors, and operator definitions.
 - Compact summaries that expand into full documentation, with `small`, `medium`, and `large` text-size tiers plus stable color markers for individual parameters.
+- An optional `compact` style that shows a single CodeLens line and opens the header declaration when clicked.
 - Hover documentation and a CodeLens expand/collapse control.
 - Header declaration navigation and an optional full Markdown preview.
 - Doxygen support for `/** ... */`, `/*! ... */`, `///`, and `//!`, including `brief`, `param`, `tparam`, `return`, `retval`, `note`, `warning`, `throws`, `deprecated`, and `see`.
@@ -65,10 +66,11 @@ All settings use the `cppHeadDoc.*` prefix.
 | Setting | Default | Description |
 | --- | --- | --- |
 | `cppHeadDoc.enabled` | `true` | Enable the extension in the workspace. |
-| `cppHeadDoc.showInlineComments` | `true` | Show wrapped inline documentation beside implementations. |
-| `cppHeadDoc.inlineCommentsExpanded` | `false` | Set to `true` to expand inline documentation when it first appears. |
-| `cppHeadDoc.inlineCommentTextSize` | `medium` | Relative size: `small`, `medium`, or `large`. |
-| `cppHeadDoc.showCodeLens` | `true` | Show compact summaries and expand/collapse controls. |
+| `cppHeadDoc.inlineCommentStyle` | `default` | Use `default` for expandable inline comments or `compact` for CodeLens-only summaries. |
+| `cppHeadDoc.showInlineComments` | `true` | Show wrapped inline documentation beside implementations in the default style. |
+| `cppHeadDoc.inlineCommentsExpanded` | `false` | Set to `true` to expand inline documentation when it first appears in the default style. |
+| `cppHeadDoc.inlineCommentTextSize` | `medium` | Relative size in the default style. Choose `small`, `medium`, or `large`. |
+| `cppHeadDoc.showCodeLens` | `true` | Show CodeLens summaries above function definitions. |
 | `cppHeadDoc.showHover` | `true` | Show full documentation when hovering function names. |
 | `cppHeadDoc.summaryStyle` | `briefAndTags` | `brief`, `briefAndParams`, or `briefAndTags`. |
 | `cppHeadDoc.maxSummaryLength` | `180` | CodeLens summary length from `40` to `500`. |
@@ -93,6 +95,8 @@ Example:
 ```
 
 The VS Code Comment API does not expose arbitrary per-extension pixel font sizes. These tiers use native Markdown typography so themes, zoom, and accessibility settings remain compatible.
+
+Set `"cppHeadDoc.inlineCommentStyle": "compact"` in `settings.json` to switch immediately to a one-line summary using VS Code's CodeLens font and size settings. Clicking the summary jumps to the header declaration. Inline comment widgets, gutter icons, and Comments panel entries are disabled for files using this style. Hover documentation is still available.
 
 ## Commands
 
