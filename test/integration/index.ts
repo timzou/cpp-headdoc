@@ -65,6 +65,63 @@ function defineTests(): void {
       assert.match(lens.command.title, /(返回值|Returns)/);
     });
 
+    test('switches to a plain CodeLens with header navigation history and preserves hover', async () => {
+      const config = vscode.workspace.getConfiguration('cppHeadDoc', sourceUri);
+      const target = vscode.ConfigurationTarget.Global;
+      const originalStyle = config.inspect<string>('inlineCommentStyle')?.globalValue;
+      const findLens = async () => (await codeLenses(sourceUri))
+        .find((item) => item.command?.title.includes('启动 FPGA 数据采集'));
+      const originalLens = await findLens();
+      assert.ok(originalLens?.command);
+      assert.equal(originalLens.command.command, 'cppHeadDoc.toggleInlineDocumentation');
+
+      try {
+        await config.update('inlineCommentStyle', 'compact', target);
+        const lens = await findLens();
+        assert.ok(lens?.command);
+        assert.equal(lens.command.title, originalLens.command.title.replace(/^\$\(chevron-right\) \$\(book\) /, ''));
+        assert.equal(lens.command.command, 'cppHeadDoc.goToDeclaration');
+
+        const hovers = await vscode.commands.executeCommand<vscode.Hover[]>(
+          'vscode.executeHoverProvider', sourceUri, lens.range.start,
+        );
+        assert.ok(hovers.some((hover) => hover.contents.some(
+          (item) => typeof item !== 'string' && item.value.includes('根据指定的采样频率'),
+        )));
+
+        const resolved: unknown = lens.command.arguments?.[0];
+        assert.ok(resolved);
+        const sourceEditor = vscode.window.activeTextEditor;
+        assert.ok(sourceEditor);
+        const otherFunction = rangeOfText(sourceEditor.document, 'undocumented');
+        assert.ok(otherFunction);
+        sourceEditor.selection = new vscode.Selection(otherFunction.start, otherFunction.start);
+
+        await vscode.commands.executeCommand(lens.command.command, resolved);
+        const editor = await activeEditorFor(headerUri);
+        assert.ok(editor);
+        const declaration = rangeOfText(editor.document, 'startAcquisition');
+        assert.ok(declaration);
+        assert.ok(editor.selection.start.isEqual(declaration.start));
+
+        await vscode.commands.executeCommand('workbench.action.navigateBack');
+        const backEditor = await activeEditorFor(sourceUri);
+        assert.ok(backEditor);
+        assert.deepEqual(backEditor.selection.active, lens.range.start, 'Go Back should return to the CodeLens function');
+
+        await vscode.commands.executeCommand('workbench.action.navigateForward');
+        const forwardEditor = await activeEditorFor(headerUri);
+        assert.ok(forwardEditor);
+        assert.ok(forwardEditor.selection.active.isEqual(declaration.start));
+      } finally {
+        await config.update('inlineCommentStyle', originalStyle, target);
+      }
+
+      const restoredLens = await findLens();
+      assert.equal(restoredLens?.command?.title, originalLens.command.title);
+      assert.equal(restoredLens?.command?.command, 'cppHeadDoc.toggleInlineDocumentation');
+    });
+
     test('provides full safe hover documentation', async () => {
       const document = await openCpp(sourceUri);
       const position = document.positionAt(document.getText().indexOf('startAcquisition'));
@@ -160,6 +217,13 @@ async function openCpp(uri: vscode.Uri): Promise<vscode.TextDocument> {
 async function codeLenses(uri: vscode.Uri): Promise<vscode.CodeLens[]> {
   await openCpp(uri);
   return await vscode.commands.executeCommand<vscode.CodeLens[]>('vscode.executeCodeLensProvider', uri, 50) ?? [];
+}
+
+async function activeEditorFor(uri: vscode.Uri): Promise<vscode.TextEditor | undefined> {
+  return await waitFor(() => {
+    const editor = vscode.window.activeTextEditor;
+    return editor?.document.uri.toString() === uri.toString() ? editor : undefined;
+  });
 }
 
 function symbolsFor(document: vscode.TextDocument): vscode.DocumentSymbol[] {

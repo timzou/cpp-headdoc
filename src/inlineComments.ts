@@ -11,7 +11,7 @@ interface ThreadEntry {
 }
 
 export class InlineDocumentationController implements vscode.Disposable {
-  readonly #controller = vscode.comments.createCommentController('cppHeadDoc.inlineDocumentation', 'C++ HeadDoc');
+  #controller: vscode.CommentController | undefined;
   readonly #changed = new vscode.EventEmitter<void>();
   readonly onDidChange = this.#changed.event;
   readonly #threads = new Map<string, ThreadEntry>();
@@ -26,6 +26,10 @@ export class InlineDocumentationController implements vscode.Disposable {
       vscode.workspace.onDidCloseTextDocument((document) => this.removeDocument(document.uri)),
       vscode.workspace.onDidChangeConfiguration((event) => {
         if (event.affectsConfiguration('cppHeadDoc')) this.refresh();
+        if (event.affectsConfiguration('cppHeadDoc.inlineCommentStyle')) {
+          this.#controller?.dispose();
+          this.#controller = undefined;
+        }
       }),
     );
     this.schedule(vscode.window.activeTextEditor);
@@ -60,12 +64,14 @@ export class InlineDocumentationController implements vscode.Disposable {
 
   show(resolved: ResolvedDocumentation): void {
     const entry = this.upsert(resolved);
+    if (!entry) return;
     entry.thread.collapsibleState = vscode.CommentThreadCollapsibleState.Expanded;
     this.#changed.fire();
   }
 
   toggle(resolved: ResolvedDocumentation): void {
     const entry = this.upsert(resolved);
+    if (!entry) return;
     entry.thread.collapsibleState = entry.thread.collapsibleState === vscode.CommentThreadCollapsibleState.Expanded
       ? vscode.CommentThreadCollapsibleState.Collapsed
       : vscode.CommentThreadCollapsibleState.Expanded;
@@ -76,7 +82,8 @@ export class InlineDocumentationController implements vscode.Disposable {
     this.#timer = undefined;
     if (!editor) return;
     const config = getConfig(editor.document.uri);
-    if (!config.enabled || !config.showInlineComments || !isSourceUri(editor.document.uri, config)) {
+    if (config.inlineCommentStyle === 'compact' || !config.enabled || !config.showInlineComments
+      || !isSourceUri(editor.document.uri, config)) {
       this.removeDocument(editor.document.uri);
       return;
     }
@@ -101,7 +108,9 @@ export class InlineDocumentationController implements vscode.Disposable {
     }));
   }
 
-  private upsert(resolved: ResolvedDocumentation): ThreadEntry {
+  private upsert(resolved: ResolvedDocumentation): ThreadEntry | undefined {
+    const config = getConfig(resolved.sourceUri);
+    if (config.inlineCommentStyle === 'compact') return undefined;
     const key = targetKey(resolved.target);
     const existing = this.#threads.get(key);
     const comment = createComment(resolved);
@@ -111,10 +120,11 @@ export class InlineDocumentationController implements vscode.Disposable {
       existing.thread.comments = [comment];
       return existing;
     }
+    this.#controller ??= vscode.comments.createCommentController('cppHeadDoc.inlineDocumentation', 'C++ HeadDoc');
     const thread = this.#controller.createCommentThread(resolved.sourceUri, anchorRange(resolved), [comment]);
     thread.canReply = false;
     thread.contextValue = 'cppHeadDoc.readonlyDocumentation';
-    const initialState = getConfig(resolved.sourceUri).inlineCommentsExpanded
+    const initialState = config.inlineCommentsExpanded
       ? vscode.CommentThreadCollapsibleState.Expanded
       : vscode.CommentThreadCollapsibleState.Collapsed;
     thread.collapsibleState = initialState;
@@ -147,7 +157,7 @@ export class InlineDocumentationController implements vscode.Disposable {
     this.#threads.clear();
     this.#subscriptions.splice(0).forEach((subscription) => { subscription.dispose(); });
     this.#changed.dispose();
-    this.#controller.dispose();
+    this.#controller?.dispose();
   }
 }
 

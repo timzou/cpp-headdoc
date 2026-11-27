@@ -11,6 +11,7 @@
   "See also": "参见",
   "Declaration": "声明",
   "Expand or collapse header documentation": "展开或折叠头文件文档",
+  "Go to header declaration": "跳转到头文件声明",
   "Documentation is no longer available.": "文档已不可用。",
   "C++ HeadDoc refreshed.": "C++ HeadDoc 已刷新。",
   "C++ HeadDoc disabled for this workspace.": "已在此工作区禁用 C++ HeadDoc。",
