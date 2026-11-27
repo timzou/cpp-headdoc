@@ -50,15 +50,15 @@ export class HeaderDocCodeLensProvider implements vscode.CodeLensProvider<Header
         showParameters: config.showParametersInCodeLens,
         showReturnValue: config.showReturnValueInCodeLens,
       }, localizedFormattingLabels());
-      if (summary) {
-        codeLens.command = {
-          command: 'cppHeadDoc.toggleInlineDocumentation',
-          title: `$(${this.isExpanded(resolved.target) ? 'chevron-down' : 'chevron-right'}) $(book) ${summary}`,
-          tooltip: vscode.l10n.t('Expand or collapse header documentation'),
-          arguments: [resolved],
-        };
-      }
-      return summary ? codeLens : hideCodeLens(codeLens);
+      if (!summary) return hideCodeLens(codeLens);
+      const compact = config.inlineCommentStyle === 'compact';
+      codeLens.command = {
+        command: compact ? 'cppHeadDoc.goToDeclaration' : 'cppHeadDoc.toggleInlineDocumentation',
+        title: compact ? summary : `$(${this.isExpanded(resolved.target) ? 'chevron-down' : 'chevron-right'}) $(book) ${summary}`,
+        tooltip: compact ? vscode.l10n.t('Go to header declaration') : vscode.l10n.t('Expand or collapse header documentation'),
+        arguments: [resolved],
+      };
+      return codeLens;
     } catch {
       return hideCodeLens(codeLens);
     }

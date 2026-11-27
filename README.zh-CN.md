@@ -65,10 +65,11 @@ code --install-extension release/cpp-headdoc-0.2.3.vsix
 | 设置 | 默认值 | 说明 |
 | --- | --- | --- |
 | `cppHeadDoc.enabled` | `true` | 启用当前工作区功能。 |
-| `cppHeadDoc.showInlineComments` | `true` | 在实现旁显示可换行的内联文档。 |
-| `cppHeadDoc.inlineCommentsExpanded` | `false` | 设为 `true` 时，内联文档首次出现即自动展开。 |
-| `cppHeadDoc.inlineCommentTextSize` | `medium` | 相对字号：`small`、`medium` 或 `large`。 |
-| `cppHeadDoc.showCodeLens` | `true` | 显示折叠/展开控制与紧凑摘要。 |
+| `cppHeadDoc.inlineCommentStyle` | `default` | `default` 显示可展开的内联评论，`compact` 仅显示 CodeLens 摘要。 |
+| `cppHeadDoc.showInlineComments` | `true` | 在默认样式下显示可换行的内联文档。 |
+| `cppHeadDoc.inlineCommentsExpanded` | `false` | 在默认样式下，设为 `true` 可在内联文档首次出现时自动展开。 |
+| `cppHeadDoc.inlineCommentTextSize` | `medium` | 默认样式的相对字号，可选 `small`、`medium` 或 `large`。 |
+| `cppHeadDoc.showCodeLens` | `true` | 在函数实现上方显示 CodeLens 摘要。 |
 | `cppHeadDoc.showHover` | `true` | 悬停函数名时显示完整文档。 |
 | `cppHeadDoc.summaryStyle` | `briefAndTags` | `brief`、`briefAndParams` 或 `briefAndTags`。 |
 | `cppHeadDoc.maxSummaryLength` | `180` | CodeLens 摘要长度，范围 `40`–`500`。 |
@@ -93,6 +94,8 @@ code --install-extension release/cpp-headdoc-0.2.3.vsix
 ```
 
 VS Code 的 Comment API 没有为单个扩展提供任意像素字号接口，因此字号设置采用原生 Markdown 的三档相对层级，保持主题、缩放和无障碍设置兼容。
+
+在 `settings.json` 中设置 `"cppHeadDoc.inlineCommentStyle": "compact"` 后立即切换为单行摘要，字体和字号遵循 VS Code 的 CodeLens 设置。点击摘要可跳转到头文件声明。使用此样式的文件会停用内联评论组件、编辑器边栏评论图标和评论面板条目。悬停文档仍可使用。
 
 ## 命令
 

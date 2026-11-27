@@ -13,6 +13,17 @@
         "${workspaceFolder}/dist/**/*.js"
       ],
       "preLaunchTask": "npm: compile"
+    },
+    {
+      "name": "Run C++ HeadDoc (without debugger)",
+      "type": "extensionHost",
+      "request": "launch",
+      "noDebug": true,
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${workspaceFolder}/examples/basic-cmake"
+      ],
+      "preLaunchTask": "npm: compile"
     }
   ]
 }
